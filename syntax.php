@@ -8,55 +8,20 @@ require_once(DOKU_PLUGIN.'syntax.php');
     It works like acronym.conf, but for any term (even with more than
     one word).
  
-    Evaluates con/explain.conf which is in the following syntax:
+    Evaluates conf/explain.conf which is in the following syntax:
  
-      term TAB explanation TAB wiki-link
+      [WHITESPACE]term TAB explanation TAB link [ TAB link ]
  
+    WHITESPACE:  If term starts with a whitespace character (Tab, Space, …),
+                 it is considered case-sensitive
     term:        regular expression of the term to explain
     explanation: a short description of the term
-    wiki-link:   link in wiki syntax (A:B:C) to the definition
+    link:        link as URL or wiki syntax (A:B:C) to the definition
  
     License: GPL
     */
 class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
- 
-  function syntax_plugin_explain() {
-    // "static" not allowed in PHP4?!?
-    //if (isset($keys[0]) return; // evaluate at most once
-    $lines = @file(DOKU_CONF.'explain.conf');
-    foreach ($lines as $line) {
-      $line = trim($line);
-      if (empty($line)) continue;
-      $parts = explode('	', $line);
-      $this->map[$parts[0]] = array(htmlspecialchars($parts[0]),
-                                    htmlspecialchars($parts[1]),
-                                    $this->link($parts[2], $parts[3]));
-      $this->keys[] = $parts[0];
-    }
-    $this->pattern = join('|', $this->keys);
-  }
- 
-  function link($target, $other) {
-    global $ID;
-    static $url = '^http://';
-    // '^(http://)?[-_[:alnum:]]+[-_.[:alnum:]]*\.[a-z]{2}'
-    // '(/[-_./[:alnum:]&%?=#]*)?';
-    if (ereg($url, $target))
-      return $target;
-    list($id, $hash) = split('#', $target, 2);
-    resolve_pageid(getNS($ID), $id, $exists);
-    if ($other!='' && $ID==$id)
-      if (ereg($url, $other))
-        return $other;
-      else {
-        list($id, $hash) = split('#', $other, 2);
-        resolve_pageid(getNS($ID), $id, $exists);
-        return wl($id).'#'.$hash;
-      }
-    else
-      return wl($id).'#'.$hash;
-  }
- 
+
   function getInfo() {
     return array('author' => 'Marc Wäckerlin',
                  'email'  => 'marc [at] waeckerlin [dot-org]',
@@ -64,36 +29,106 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
                  'desc'   => 'Explain terms',
                  'url'    => 'http://marc.waeckerlin.org');
   }
- 
+
   function getType() {
     return 'substition';
   }
- 
+
   function getSort() {
     return 239; // before 'acronym'
   }
  
-  function connectTo($mode) {
-     if ($this->pattern!='')
-       $this->Lexer->addSpecialPattern($this->pattern, $mode,
-                                       'plugin_explain');
-  }
- 
-  function handle($match, $state, $pos, &$handler) {
-    foreach (array_keys($this->map) as $rxmatch) {
-      if (preg_match('/^('.$rxmatch.')$/',$match)) {
-        return array($match,$this->map[$rxmatch][1],$this->map[$rxmatch][2]);
-      }
+  function syntax_plugin_explain() {
+    // "static" not allowed in PHP4?!?
+    //if (isset($keys[0]) return; // evaluate at most once
+    $lines = @file(DOKU_CONF.'explain.conf');
+    if ($lines === false) {
+        return;
+    }
+    foreach ($lines as $line) {
+      $i = (trim(mb_substr($line, 0, 1)) !== '');
+      $line = trim($line);
+      if (empty($line)) continue;
+      $parts = explode("\t", $line);
+      if ($i) $parts[0] = utf8_strtolower($parts[0]);
+      $this->map[$parts[0]] = array('desc'   => $parts[1],
+                                    'target' => $this->link(array_slice($parts, 2)),
+                                    'i'      => $i);
     }
   }
  
+  function link($targets) {
+    foreach($targets as $target) {
+	  $_ret = $this->_link($target);
+      if ($_ret !== '') {
+        break;
+      }
+    }
+    return $_ret;
+  }
+
+  function _link($target) {
+    /* Match an URL. */
+    static $url = '^https?://';
+    // '^(http://)?[-_[:alnum:]]+[-_.[:alnum:]]*\.[a-z]{2}'
+    // '(/[-_./[:alnum:]&%?=#]*)?';
+    if (ereg($url, $target))
+      return $target;
+
+    /* Match an internal link. */
+    list($id, $hash) = split('#', $target, 2);
+    global $ID;
+
+	$_ret = '';
+    if($ID != $id) {
+      $_ret .= wl($id);
+    }
+    if($hash != '') {
+      $_ret .= '#'.$hash;
+    }
+    return $_ret;
+  }
+ 
+  function connectTo($mode) {
+    if (count($this->map) === 0)
+      return;
+
+    $re = '(?<=^|\W)(?i:'.
+          join('|', array_map('preg_quote_cb', array_keys($this->map))).
+          ')(?=\W|$)';
+
+    $this->Lexer->addSpecialPattern($re, $mode, 'plugin_explain');
+  }
+ 
+  function handle($match, $state, $pos, &$handler) {
+    /* Supply the matched text in any case. */
+    $data = array('content' => $match);
+    foreach (array_keys($this->map) as $rxmatch) {
+      if ($match === $rxmatch ||
+          ($this->map[$rxmatch]['i'] && utf8_strtolower($match) === $rxmatch)) {
+        $data += $this->map[$rxmatch];
+	    /* Handle only the first occurrence. */
+	    unset($this->map[$rxmatch]['desc']);
+        break;
+      }
+    }
+	return $data;
+  }
+ 
   function render($format, &$renderer, $data) {
-    $renderer->doc .= '<a class="explain" href="'.$data[2].'">';
-    $renderer->doc .= $data[0];
-    /* Customized: removes hover when definition is empty */
-    if ($data[1] != '') {$renderer->doc .= '<span class="tooltip">'.$data[1].'</span>';}
+    if(is_null($data['desc'])) {
+      $renderer->doc .= hsc($data['content']);
+      return true;
+    }
+    $renderer->doc .= '<a class="explain"';
+    if(($data['target']) !== '') {
+      $renderer->doc .= ' href="' . hsc($data['target']) . '"';
+    }
+    $renderer->doc .= '>' . hsc($data['content']);
+    if ($data['desc'] !== '') {
+      $renderer->doc .= '<span class="tooltip">'.hsc($data['desc']).'</span>';
+    }
     $renderer->doc .= '</a>';
     return true;
   }
 }
-?>

@@ -1,0 +1,36 @@
+a.explain {
+  border-bottom: 1px dotted __border__;
+  padding-top: 0;
+}
+
+a.explain:hover {
+  background-color: __light__;
+  color: #000;
+  position: relative;
+}
+
+div.dokuwiki a.explain span.tooltip {
+  display: none;
+  background-color: __background_neu__;
+  color: __text_neu__;
+  font-family: Verdana, 'Trebuchet MS', times;
+  border:1px solid __border__;
+  font-size:80%;
+  line-height:1.2em;
+  padding:4px 4px 8px 8px;
+  text-align:left;
+  position: relative;
+}
+
+/* IE/Win requires this */
+div.dokuwiki a.explain:hover {font-size: 100%;}
+
+/*the span will display just on :hover state*/
+div.dokuwiki a.explain:hover span.tooltip {
+  display: block !important;
+  position: absolute;
+  top: 5px;
+  left: 40px;
+  width: 150px;
+  z-index:99 !important;
+}
