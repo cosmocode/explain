@@ -80,13 +80,19 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
   }
  
   function handle($match, $state, $pos, &$handler) {
-    return $this->map[$match];
+    foreach (array_keys($this->map) as $rxmatch) {
+      if (preg_match('/^('.$rxmatch.')$/',$match)) {
+        return array($match,$this->map[$rxmatch][1],$this->map[$rxmatch][2]);
+      }
+    }
   }
  
   function render($format, &$renderer, $data) {
-    $renderer->doc .= '<a href="'.$data[2]
-      .'" title="'.$data[1].'" class="explain">'
-      .$data[0].'</a>';
+    $renderer->doc .= '<a class="explain" href="'.$data[2].'">';
+    $renderer->doc .= $data[0];
+    /* Customized: removes hover when definition is empty */
+    if ($data[1] != '') {$renderer->doc .= '<span class="tooltip">'.$data[1].'</span>';}
+    $renderer->doc .= '</a>';
     return true;
   }
 }
