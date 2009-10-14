@@ -1,33 +1,37 @@
 <?php
-    if(!defined('DOKU_INC')) define('DOKU_INC',realpath(dirname(__FILE__).'/../../').'/');
+if(!defined('DOKU_INC')) define('DOKU_INC',realpath(dirname(__FILE__).'/../../').'/');
 if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
 require_once(DOKU_PLUGIN.'syntax.php');
- 
-/** Explain Terms and Definitions
- 
-    It works like acronym.conf, but for any term (even with more than
-    one word).
- 
-    Evaluates conf/explain.conf which is in the following syntax:
- 
-      [WHITESPACE]term TAB explanation TAB link [ TAB link ]
- 
-    WHITESPACE:  If term starts with a whitespace character (Tab, Space, …),
-                 it is considered case-sensitive
-    term:        regular expression of the term to explain
-    explanation: a short description of the term
-    link:        link as URL or wiki syntax (A:B:C) to the definition
- 
-    License: GPL
-    */
+
+/**
+ * Explain Terms and Definitions
+ *
+ * It works like acronym.conf, but for any term (even with more than
+ * one word).
+ *
+ * Evaluates conf/explain.conf which is in the following syntax:
+ *
+ * [WHITESPACE]term TAB explanation TAB link [ TAB link ]
+ *
+ * WHITESPACE:  If term starts with a whitespace character (Tab, Space, …),
+ *              it is considered case-sensitive
+ * term:        the term to explain
+ * explanation: a short description of the term
+ * link:        link as URL or wiki page (a:b:c) to the definition
+ *
+ * @license  GPL
+ * @author   Marc Wäckerlin <marc@waeckerlin.org>
+ * @author   Adrian Lang <lang@cosmocode.de>
+ */
 class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
 
   function getInfo() {
-    return array('author' => 'Marc Wäckerlin',
-                 'email'  => 'marc [at] waeckerlin [dot-org]',
-                 'name'   => 'Explain',
-                 'desc'   => 'Explain terms',
-                 'url'    => 'http://marc.waeckerlin.org');
+    return array('author' => 'Adrian Lang',
+                 'email'  => 'lang@cosmocode.de',
+                 'name'   => 'Explain Plugin',
+                 'desc'   => 'Explain predefined terms with a tooltip and optional link (previous author Marc Wäckerlin',
+                 'date'   => '2009-10-14',
+                 'url'    => 'http://www.dokuwiki.org/plugin:explain');
   }
 
   function getType() {
@@ -37,7 +41,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
   function getSort() {
     return 239; // before 'acronym'
   }
- 
+
   function syntax_plugin_explain() {
     // "static" not allowed in PHP4?!?
     //if (isset($keys[0]) return; // evaluate at most once
@@ -56,10 +60,10 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
                                     'i'      => $i);
     }
   }
- 
+
   function link($targets) {
     foreach($targets as $target) {
-	  $_ret = $this->_link($target);
+      $_ret = $this->_link($target);
       if ($_ret !== '') {
         break;
       }
@@ -79,7 +83,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
     list($id, $hash) = split('#', $target, 2);
     global $ID;
 
-	$_ret = '';
+    $_ret = '';
     if($ID != $id) {
       $_ret .= wl($id);
     }
@@ -88,7 +92,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
     }
     return $_ret;
   }
- 
+
   function connectTo($mode) {
     if (count($this->map) === 0)
       return;
@@ -99,7 +103,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
 
     $this->Lexer->addSpecialPattern($re, $mode, 'plugin_explain');
   }
- 
+
   function handle($match, $state, $pos, &$handler) {
     /* Supply the matched text in any case. */
     $data = array('content' => $match);
@@ -107,14 +111,14 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
       if ($match === $rxmatch ||
           ($this->map[$rxmatch]['i'] && utf8_strtolower($match) === $rxmatch)) {
         $data += $this->map[$rxmatch];
-	    /* Handle only the first occurrence. */
-	    unset($this->map[$rxmatch]['desc']);
+        /* Handle only the first occurrence. */
+        unset($this->map[$rxmatch]['desc']);
         break;
       }
     }
-	return $data;
+    return $data;
   }
- 
+
   function render($format, &$renderer, $data) {
     if(is_null($data['desc'])) {
       $renderer->doc .= hsc($data['content']);
