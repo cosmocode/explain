@@ -44,7 +44,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
             return;
         }
         foreach ($lines as $line) {
-            $i = (trim(mb_substr($line, 0, 1)) !== '');
+            $i = (trim(substr($line, 0, 1)) !== '');
             $line = trim($line);
             if (empty($line)) continue;
             $parts = explode("\t", $line);
