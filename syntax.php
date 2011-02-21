@@ -10,17 +10,21 @@ if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
  *
  * Evaluates conf/explain.conf which is in the following syntax:
  *
- * [WHITESPACE]term TAB explanation TAB link [ TAB link ]
+ * [<WHITESPACE>]term<TAB>explanation<TAB>link1<TAB>link2
  *
  * WHITESPACE:  If term starts with a whitespace character (Tab, Space, …),
  *              it is considered case-sensitive
  * term:        the term to explain
  * explanation: a short description of the term
- * link:        link as URL or wiki page (a:b:c) to the definition
+ * link1:       link as URL or wiki page (a:b:c) to the definition
+ * link2:       link as URL or wiki page (a:b:c) to alternative definition
+ *
+ * If the first link points to the current page, the second link is used
  *
  * @license  GPL
  * @author   Marc Wäckerlin <marc@waeckerlin.org>
  * @author   Adrian Lang <lang@cosmocode.de>
+ * @author   Andreas Gohr <gohr@cosmocode.de>
  */
 class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
 
