@@ -122,10 +122,11 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
         if(($data['target']) !== '') {
             $renderer->doc .= ' href="' . hsc($data['target']) . '"';
         }
-        $renderer->doc .= '>' . hsc($data['content']);
         if ($data['desc'] !== '') {
-            $renderer->doc .= '<span class="tooltip">'.hsc($data['desc']).'</span>';
+            $renderer->doc .= 'onmouseover="plugin_explain(this,\''.md5($data['content']).'\',\''.hsc($data['desc']).'\')"';
         }
+
+        $renderer->doc .= '>' . hsc($data['content']);
         $renderer->doc .= '</a>';
         return true;
     }
