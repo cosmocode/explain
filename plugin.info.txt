@@ -2,7 +2,7 @@ base   explain
 author Adrian Lang
 email  lang@cosmocode.de
 name   Explain Plugin
-desc   Explain predefined terms with a tooltip and optional link (previous author Marc Wäckerlin
+desc   Explain predefined terms with a tooltip and optional link (previous author Marc Wäckerlin)
 date   2009-10-14
 url    http://www.dokuwiki.org/plugin:explain
 
