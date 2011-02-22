@@ -12,6 +12,7 @@ function plugin_explain(obj,id,text){
         div.style.position = 'absolute';
         div.style.left = (findPosX(obj)+15)+'px';
         div.style.top = (findPosY(obj)+15)+'px';
+        div.style.zIndex = 100;
         div.id = 'plg_explain__'+id;
         obj.parentNode.insertBefore(div,obj);
 
