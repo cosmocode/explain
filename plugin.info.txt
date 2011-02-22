@@ -3,6 +3,6 @@ author Andreas Gohr
 email  gohr@cosmocode.de
 name   Explain Plugin (JavaScript)
 desc   Explain predefined terms with a tooltip and optional link (previous author Marc Wäckerlin)
-date   2011-02-21
+date   2011-02-22
 url    http://www.dokuwiki.org/plugin:explain
 
