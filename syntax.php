@@ -28,6 +28,9 @@ if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
  */
 class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
 
+    private $map;
+    private $links;
+
     function getType() {
         return 'substition';
     }
@@ -99,22 +102,40 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
     }
 
     function handle($match, $state, $pos, &$handler) {
-        /* Supply the matched text in any case. */
+        // Supply the matched text in any case.
         $data = array('content' => $match);
-        foreach (array_keys($this->map) as $rxmatch) {
-            if ($match === $rxmatch ||
-                    ($this->map[$rxmatch]['i'] && utf8_strtolower($match) === $rxmatch)) {
-                $data += $this->map[$rxmatch];
-                /* Handle only the first occurrence. */
-                unset($this->map[$rxmatch]['desc']);
-                break;
+
+        if(isset($this->map[$match])){
+            // we have an exact match
+            $data += $this->map[$match];
+            // we no longer need this entry bc we match 1st occurance only
+            unset($this->map[$match]);
+        }else{
+            // try case insensitive matching
+            $lmatch = utf8_strtolower($match);
+            if(isset($this->map[$lmatch]) && $this->map[$lmatch]['i']){
+                $data += $this->map[$lmatch];
+                // we no longer need this entry bc we match 1st occurance only
+                unset($this->map[$lmatch]);
             }
         }
+
+        // did we see this link before?
+        if($data['target']){
+            if($this->links[$data['target']]){
+                // yes, we had that one. don't link handle it
+                unset($data['desc']);
+            }else{
+                // no it's new. remember it
+                $this->links[$data['target']] = 1;
+            }
+        }
+
         return $data;
     }
 
     function render($format, &$renderer, $data) {
-        if(is_null($data['desc'])) {
+        if(!isset($data['desc'])) {
             $renderer->doc .= hsc($data['content']);
             return true;
         }
