@@ -8,6 +8,7 @@ function plugin_explain(obj,id,text){
         div = document.createElement('div');
         div.className = 'insitu-footnote JSpopup';
         div.textContent = text;
+        div.innerText = text;
         div.style.position = 'absolute';
         div.style.left = (findPosX(obj)+15)+'px';
         div.style.top = (findPosY(obj)+15)+'px';
