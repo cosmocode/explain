@@ -70,20 +70,16 @@ class syntax_plugin_explain_terms extends DokuWiki_Syntax_Plugin {
 
     function _link($target) {
         /* Match an URL. */
-        static $url = '^https?://';
-        // '^(http://)?[-_[:alnum:]]+[-_.[:alnum:]]*\.[a-z]{2}'
-        // '(/[-_./[:alnum:]&%?=#]*)?';
-        if (ereg($url, $target))
-            return $target;
+        if (preg_match('#^https?://#', $target)) return $target;
 
         /* Match an internal link. */
         list($id, $hash) = split('#', $target, 2);
         global $ID;
 
         $_ret = '';
-        if($ID != $id) {
-            $_ret .= wl($id);
-        }
+        if($ID == $id) return '';
+
+        $_ret .= wl($id);
         if($hash != '') {
             $_ret .= '#'.$hash;
         }
@@ -139,7 +135,7 @@ class syntax_plugin_explain_terms extends DokuWiki_Syntax_Plugin {
     function render($format, &$renderer, $data) {
         global $ID;
         if( p_get_metadata($ID,'plugin explain') ){
-            $renderer->doc .= $data['content'];
+            $renderer->doc .= hsc($data['content']);
             return true;
         }
 
