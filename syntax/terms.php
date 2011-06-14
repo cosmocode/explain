@@ -26,7 +26,7 @@ if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
  * @author   Adrian Lang <lang@cosmocode.de>
  * @author   Andreas Gohr <gohr@cosmocode.de>
  */
-class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
+class syntax_plugin_explain_terms extends DokuWiki_Syntax_Plugin {
 
     private $map;
     private $links;
@@ -39,7 +39,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
         return 239; // before 'acronym'
     }
 
-    function syntax_plugin_explain() {
+    function syntax_plugin_explain_terms() {
         // "static" not allowed in PHP4?!?
         //if (isset($keys[0]) return; // evaluate at most once
         $lines = @file(DOKU_CONF.'explain.conf');
@@ -91,6 +91,8 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
     }
 
     function connectTo($mode) {
+        global $ID;
+
         if (count($this->map) === 0)
             return;
 
@@ -98,7 +100,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
                 join('|', array_map('preg_quote_cb', array_keys($this->map))).
                 ')(?=\W|$)';
 
-        $this->Lexer->addSpecialPattern($re, $mode, 'plugin_explain');
+        $this->Lexer->addSpecialPattern($re, $mode, 'plugin_explain_terms');
     }
 
     function handle($match, $state, $pos, &$handler) {
@@ -135,6 +137,12 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
     }
 
     function render($format, &$renderer, $data) {
+        global $ID;
+        if( p_get_metadata($ID,'plugin explain') ){
+            $renderer->doc .= $data['content'];
+            return true;
+        }
+
         if(!isset($data['desc'])) {
             $renderer->doc .= hsc($data['content']);
             return true;
