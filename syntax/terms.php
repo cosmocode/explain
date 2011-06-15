@@ -77,7 +77,7 @@ class syntax_plugin_explain_terms extends DokuWiki_Syntax_Plugin {
         global $ID;
 
         $_ret = '';
-        if($ID == $id) return '';
+        if($ID == $id) return '!';
 
         $_ret .= wl($id);
         if($hash != '') {
@@ -139,7 +139,7 @@ class syntax_plugin_explain_terms extends DokuWiki_Syntax_Plugin {
             return true;
         }
 
-        if(!isset($data['desc'])) {
+        if(!isset($data['desc']) || $data['target'] == '!') {
             $renderer->doc .= hsc($data['content']);
             return true;
         }
