@@ -148,7 +148,7 @@ class syntax_plugin_explain_terms extends DokuWiki_Syntax_Plugin {
             $renderer->doc .= ' href="' . hsc($data['target']) . '"';
         }
         if ($data['desc'] !== '') {
-            $renderer->doc .= 'onmouseover="plugin_explain(this,\''.md5($data['content']).'\',\''.hsc($data['desc']).'\')"';
+            $renderer->doc .= ' onmouseover="plugin_explain(this,\''.md5($data['content']).'\',\''.hsc(addslashes($data['desc'])).'\')"';
         }
 
         $renderer->doc .= '>' . hsc($data['content']);
