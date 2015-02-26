@@ -1,8 +1,8 @@
 base   explain
 author Adrian Lang
-email  lang@cosmocode.de
+email  dokuwiki@cosmocode.de
 name   Explain Plugin
 desc   Explain predefined terms with a tooltip and optional link (previous author Marc Wäckerlin)
-date   2009-10-14
+date   2015-02-26
 url    http://www.dokuwiki.org/plugin:explain
 
