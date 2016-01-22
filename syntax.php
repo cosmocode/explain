@@ -98,7 +98,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
         $this->Lexer->addSpecialPattern($re, $mode, 'plugin_explain');
     }
 
-    function handle($match, $state, $pos, &$handler) {
+    function handle($match, $state, $pos, Doku_Handler $handler) {
         /* Supply the matched text in any case. */
         $data = array('content' => $match);
         foreach (array_keys($this->map) as $rxmatch) {
@@ -113,7 +113,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
         return $data;
     }
 
-    function render($format, &$renderer, $data) {
+    function render($format, Doku_Renderer $renderer, $data) {
         if(is_null($data['desc'])) {
             $renderer->doc .= hsc($data['content']);
             return true;
