@@ -3,6 +3,6 @@ author Adrian Lang
 email  dokuwiki@cosmocode.de
 name   Explain Plugin
 desc   Explain predefined terms with a tooltip and optional link (previous author Marc Wäckerlin)
-date   2016-01-22
+date   2016-01-24
 url    http://www.dokuwiki.org/plugin:explain
 
