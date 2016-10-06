@@ -113,20 +113,28 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
         return $data;
     }
 
-    function render($format, Doku_Renderer $renderer, $data) {
+    public function render($format, Doku_Renderer $renderer, $data) {
         if(is_null($data['desc'])) {
             $renderer->doc .= hsc($data['content']);
             return true;
         }
-        $renderer->doc .= '<a class="explain"';
-        if(($data['target']) !== '') {
-            $renderer->doc .= ' href="' . hsc($data['target']) . '"';
+        if ($format == 'xhtml') {
+            $renderer->doc .= '<a class="explain"';
+            if(($data['target']) !== '') {
+                $renderer->doc .= ' href="' . hsc($data['target']) . '"';
+            }
+            $renderer->doc .= '>' . hsc($data['content']);
+            if ($data['desc'] !== '') {
+                $renderer->doc .= '<span class="tooltip">'.hsc($data['desc']).'</span>';
+            }
+            $renderer->doc .= '</a>';
+            return true;
         }
-        $renderer->doc .= '>' . hsc($data['content']);
-        if ($data['desc'] !== '') {
-            $renderer->doc .= '<span class="tooltip">'.hsc($data['desc']).'</span>';
+        // generate output for ODT export
+        if ($format == 'odt') {
+            $renderer->doc .= hsc($data['content']);
+            return true;
         }
-        $renderer->doc .= '</a>';
-        return true;
+        return false;
     }
 }
