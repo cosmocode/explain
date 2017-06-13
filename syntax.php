@@ -19,7 +19,8 @@ if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN',DOKU_INC.'lib/plugins/');
  * link1:       link as URL or wiki page (a:b:c) to the definition
  * link2:       link as URL or wiki page (a:b:c) to alternative definition
  *
- * If the first link points to the current page, the second link is used
+ * If the first link points to the current page, the second link is used.
+ * Lines starting with # are treated as comments.
  *
  * @license  GPL
  * @author   Marc Wäckerlin <marc@waeckerlin.org>
@@ -47,6 +48,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
             $i = (trim(substr($line, 0, 1)) !== '');
             $line = trim($line);
             if (empty($line)) continue;
+            if (substr($line, 0, 1) === '#') continue;
             $parts = explode("\t", $line);
             if ($i) $parts[0] = utf8_strtolower($parts[0]);
             $this->map[$parts[0]] = array('desc'   => $parts[1],
