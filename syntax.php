@@ -72,11 +72,11 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
         static $url = '^https?://';
         // '^(http://)?[-_[:alnum:]]+[-_.[:alnum:]]*\.[a-z]{2}'
         // '(/[-_./[:alnum:]&%?=#]*)?';
-        if (ereg($url, $target))
+        if (preg_match($url, $target))
             return $target;
 
         /* Match an internal link. */
-        list($id, $hash) = split('#', $target, 2);
+        list($id, $hash) = preg_split('#', $target, 2);
         global $ID;
 
         $_ret = '';
