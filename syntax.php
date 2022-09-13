@@ -90,7 +90,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
     }
 
     function connectTo($mode) {
-        if (count($this->map) === 0)
+        if (count((array)$this->map) === 0)
             return;
 
         $re = '(?<=^|\W)(?i:'.
@@ -105,7 +105,7 @@ class syntax_plugin_explain extends DokuWiki_Syntax_Plugin {
         $data = array('content' => $match);
         foreach (array_keys($this->map) as $rxmatch) {
             if ($match === $rxmatch ||
-                    ($this->map[$rxmatch]['i'] && utf8_strtolower($match) === $rxmatch)) {
+                    ($this->map[$rxmatch]['i'] && strtolower($match) === $rxmatch)) {
                 $data += $this->map[$rxmatch];
                 /* Handle only the first occurrence. */
                 unset($this->map[$rxmatch]['desc']);
